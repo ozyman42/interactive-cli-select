@@ -1,13 +1,14 @@
 {
   "name": "@ozyman42/interactive-cli-select",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "ink": "^6.6.0",
-    "react": "^19.2.3"
+    "react": "^19.2.3",
+    "react-devtools-core": "^6.1.2"
   },
   "peerDependencies": {
     "effect": "^3.19.14"
