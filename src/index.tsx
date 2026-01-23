@@ -16,23 +16,29 @@ export interface SelectFromListConfig<T> {
 
 export const selectFromList = e.Effect.fn(function* <T>(config: SelectFromListConfig<T>) {
   return yield* e.Effect.async<T, PossibleErrors<T>>((resume) => {
-    render(<SelectFromList
+    const { unmount, clear } = render(<SelectFromList
       options={config.options}
       renderIndex={config.renderIndex}
       renderOption={config.renderOption}
       renderSelection={config.renderSelection}
       windowSize={config.windowSize}
       onSelected={selected => {
+        clear();
+        unmount();
         resume(e.Effect.succeed(selected));
       }}
       getKey={config.getKey}
       onError={error => {
+        clear();
+        unmount();
         resume(e.Effect.fail(error));
       }}
     />)
-  })
-  
+  });
 });
+
+export { SelectFromList } from "./components/select-from-list";
 
 // TODO
 //export function selectFromTree
+
