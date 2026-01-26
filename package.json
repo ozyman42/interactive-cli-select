@@ -1,12 +1,13 @@
 {
   "name": "@ozyman42/interactive-cli-select",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "npm run build",
     "test": "bun run ./src/test.ts"
   },
   "dependencies": {
+    "ansicolor": "^2.0.3",
     "ink": "^6.6.0",
     "react": "^19.2.3",
     "react-devtools-core": "^6.1.2",
@@ -25,10 +26,15 @@
       "default": "./dist/index.js"
     }
   },
+  "license": "MIT",
   "type": "module",
   "files": [
     "dist"
   ],
+  "repository": {
+    "url": "git+https://github.com/ozyman42/interactive-cli-select.git",
+    "type": "git"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/react": "^19.2.8",

@@ -1,15 +1,9 @@
 # @ozyman42/interactive-cli-select
 
-To install dependencies:
+CLI for interactive selection. 
 
-```bash
-bun install
-```
+Select from a list of elements or model a sequence of list selections (displayed as a tree by default).
 
-To run:
+Available as react ink components or as standalone, runnable functions.
 
-```bash
-bun run src/index.tsx
-```
-
-This project was created using `bun init` in bun v1.2.9. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+<img src="./demo.gif" width="500">

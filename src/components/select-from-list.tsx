@@ -1,7 +1,8 @@
 import React from "react";
-import { Box, Newline, Text, TextProps, useInput } from "ink";
+import { Box, Text, useInput } from "ink";
 import * as e from "effect";
 import stripAnsi from "strip-ansi";
+import { Color } from "../common";
 
 export class DuplicateEntryError<T> extends e.Data.TaggedError("DuplicateEntryError")<{ one: T, two: T }> { }
 export class NoEntriesError extends e.Data.TaggedError("NoEntriesError")<{}> { }
@@ -51,7 +52,7 @@ function alphabeticalDistance(one: string, two: string): number {
   return 0;
 }
 
-type OptionEntry<T> = {
+export type OptionEntry<T> = {
   key: string;
   option: T;
   render: string;
@@ -240,8 +241,6 @@ function updateWindow<T>(config: UpdateWindowConfig<T>) {
     end: finalWindowEnd
   });
 }
-
-type Color = TextProps["color"];
 
 const Cursor: React.FC<{ children: React.ReactNode | React.ReactNode[]; altColor?: { blink: Color; normal: Color } }> = (props) => {
   const [blink, setBlink] = React.useState(true);
