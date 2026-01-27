@@ -2,6 +2,7 @@ import * as e from "effect";
 import { render } from "ink";
 import { SelectFromList, type PossibleErrors } from "./components/select-from-list";
 import { FetchOptionsError, SelectFromTree, SelectOptionError } from "./components/select-from-tree";
+import { Color } from "./common";
 
 export interface SelectFromListConfig<T> {
   options: T[];
@@ -9,10 +10,13 @@ export interface SelectFromListConfig<T> {
   renderIndex?: (optionIndex: number, matchIndex: number) => string;
   renderOption: (option: T) => string;
   renderSelection?: (selected: boolean) => string;
+  onEmptySearchDelete?: () => void;
   /**
    * How many options from the list of options to show at any given time
    */
   windowSize?: number;
+  selectedColor?: Color;
+  matchColor?: Color;
 }
 
 export const selectFromList = e.Effect.fn(function* <T>(config: SelectFromListConfig<T>) {
@@ -34,6 +38,9 @@ export const selectFromList = e.Effect.fn(function* <T>(config: SelectFromListCo
         unmount();
         resume(e.Effect.fail(error));
       }}
+      onEmptySearchDelete={config.onEmptySearchDelete}
+      selectedColor={config.selectedColor}
+      matchColor={config.matchColor}
     />)
   });
 });
@@ -42,10 +49,16 @@ export { SelectFromList } from "./components/select-from-list";
 
 export interface SelectFromTreeConfig<E> {
   root: string;
-  getOptionKey: (nodes: string[], option: string) => string;
-  renderOption: (nodes: string[], option: string) => string;
-  renderTree?: (root: string, renderSelection: (selection: string) => string, nodes: string[]) => string;
-  getOptions: (nodes: string[]) => e.Effect.Effect<string[], E>;
+  getOptionKey: (priorChoices: string[], option: string) => string;
+  renderOption: (priorChoices: string[], option: string) => string;
+  renderTree?: (root: string, renderChoice: (choice: string) => string, priorChoices: string[]) => string;
+  getOptions: (priorChoices: string[]) => e.Effect.Effect<string[], E>;
+  /**
+   * Only relevant when using the default render
+   */
+  choiceColor?: Color;
+  selectedColor?: Color;
+  matchColor?: Color;
 }
 
 export type SelectFromTreeErrors<E> = FetchOptionsError<E> | SelectOptionError;
@@ -53,13 +66,13 @@ export type SelectFromTreeErrors<E> = FetchOptionsError<E> | SelectOptionError;
 export const selectFromTree = e.Effect.fn(function* <E>(config: SelectFromTreeConfig<E>) {
   return yield* e.Effect.async<string[], SelectFromTreeErrors<E>>((resume) => {
 
-    const getOptions: (nodes: string[]) => e.Effect.Effect<string[], E> = e.Effect.fn(function* (nodes) {
-      const options = yield* config.getOptions(nodes);
+    const getOptions: (priorChoices: string[]) => e.Effect.Effect<string[], E> = e.Effect.fn(function* (priorChoices) {
+      const options = yield* config.getOptions(priorChoices);
       // If there are no options, we assume we've traversed the entire tree.
       if (options.length === 0) {
         clear();
         unmount();
-        resume(e.Effect.succeed(nodes));
+        resume(e.Effect.succeed(priorChoices));
       }
       return options;
     });
@@ -75,6 +88,9 @@ export const selectFromTree = e.Effect.fn(function* <E>(config: SelectFromTreeCo
         unmount();
         resume(e.Effect.fail(error));
       }}
+      choiceColor={config.choiceColor}
+      selectedColor={config.selectedColor}
+      matchColor={config.matchColor}
     />)
   });
 });

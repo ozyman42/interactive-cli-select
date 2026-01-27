@@ -1,6 +1,6 @@
 {
   "name": "@ozyman42/interactive-cli-select",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "npm run build",

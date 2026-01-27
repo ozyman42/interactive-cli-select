@@ -24,6 +24,9 @@ export interface Props<T> {
   windowSize?: number;
   onSelected: (option: T) => void;
   onError: (error: PossibleErrors<T>) => void;
+  onEmptySearchDelete?: () => void;
+  selectedColor?: Color;
+  matchColor?: Color;
 }
 
 function assertElement<T>(arr: T[], index: number): T {
@@ -314,7 +317,7 @@ function matchingIndices(source: string, toMatch: string): boolean[] {
 }
 
 export function SelectFromList<T>(props: Props<T>): React.ReactNode {
-  const { getKey, renderOption } = props;
+  const { getKey, renderOption, onEmptySearchDelete } = props;
   const [chosen, setChosen] = React.useState<T | undefined>();
   const [inputFieldFocus, setInputFieldFocus] = React.useState(0);
   const sortedResult = sortedEntries(props.options, getKey, renderOption);
@@ -343,6 +346,9 @@ export function SelectFromList<T>(props: Props<T>): React.ReactNode {
   );
   const resolvedWindowSize = Math.max(1, props.windowSize ?? 10);
   const resolvedRenderSelection = props.renderSelection ?? (selected => selected ? "► " : "  ");
+  const resolvedOnEmptySearchDelete = onEmptySearchDelete ?? (() => { });
+  const resolvedMatchColor = props.matchColor ?? Color.magentaBright;
+  const resolvedSelectedColor = props.selectedColor ?? Color.yellow;
 
   // Every entry will initially match since the search begins as empty string
   const [matches, setMatches] = React.useState<number[]>(sorted.map((option, index) => index));
@@ -380,7 +386,12 @@ export function SelectFromList<T>(props: Props<T>): React.ReactNode {
     } else if (key.rightArrow) {
       setInputFieldFocus(Math.min(inputFieldFocus + 1, search.length));
     } else if (key.backspace || key.delete) { // TODO: handle forward deletion. On mac osx this doesn't seem to work in the way you'd think
-      if (inputFieldFocus === 0) return;
+      if (inputFieldFocus === 0) {
+        if (search.length === 0) {
+          resolvedOnEmptySearchDelete();
+        }
+        return;
+      }
       const newSearch = search.slice(0, inputFieldFocus - 1) + search.slice(inputFieldFocus, search.length);
       setInputFieldFocus(Math.max(inputFieldFocus - 1, 0));
       updateWindow({
@@ -460,13 +471,13 @@ export function SelectFromList<T>(props: Props<T>): React.ReactNode {
     const matchingByIndex = matchingIndices(option.render, search);
     return <>
       <Prefix prefix={props.prefix} />
-      <Text color={isSelected ? "yellow" : "gray"}>{resolvedRenderSelection(isSelected)}</Text>
-      <Text color={isSelected ? "yellow" : "gray"}>{resolvedRenderIndex(optionIndex, matchIndex)}</Text>
+      <Text color={isSelected ? resolvedSelectedColor : Color.gray}>{resolvedRenderSelection(isSelected)}</Text>
+      <Text color={isSelected ? resolvedSelectedColor : Color.gray}>{resolvedRenderIndex(optionIndex, matchIndex)}</Text>
       {matchingByIndex.map((matching, index) => {
         const color: Color =
           isSelected ?
-            (matching ? "magentaBright" : "yellow") :
-            (matching ? "magentaBright" : "white");
+            (matching ? resolvedMatchColor : resolvedSelectedColor) :
+            (matching ? resolvedMatchColor : Color.white);
         return <Text color={color} key={index}>
           {option.render.charAt(index)}
         </Text>
@@ -485,7 +496,7 @@ export function SelectFromList<T>(props: Props<T>): React.ReactNode {
         </Text>
         <Cursor
           key={inputFieldFocus}
-          altColor={shouldRenderAutoComplete && isFirstAutoCompleteCharUnderCursor ? {blink: "gray", normal: "gray"} : undefined}
+          altColor={shouldRenderAutoComplete && isFirstAutoCompleteCharUnderCursor ? {blink: Color.gray, normal: Color.gray} : undefined}
         >
           {search.slice(inputFieldFocus, inputFieldFocus + 1)
             .padEnd(1, (shouldRenderAutoComplete && isFirstAutoCompleteCharUnderCursor) ? maybeAutocomplete.value.completion[0] : " ")}
